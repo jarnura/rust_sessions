@@ -1,0 +1,463 @@
+= Rust
+
+== Install rust
+
+The best way to install Rust is with [rustup](https://www.rustup.rs/). rustup is a Rust
+version manager. To install it type:
+
+```
+curl https://sh.rustup.rs -sSf | sh
+```
+
+To keep your rust up-to-date with the latest stable version of rust,
+type:
+
+```
+rustup update
+```
+
+To check which version of Rust you have type:
+
+```
+rustc --version
+```
+
+
+## Cargo
+
+Cargo is a tool that helps you develop Rust. It does several things:
+
+- Runs tasks: `cargo build` (compile your app), `cargo test` (test your app), `cargo run` (run your app)
+- Start a project: `cargo new`, `cargo init`
+
+### - 
+
+Cargo is also the package manager for Rust. This means that you can
+use Cargo to install and manage bits of other people's code.
+
+### Comparing with Purescript and Haskell
+
+- A package in Rust is called a Crate. 
+- You can find Crates on http://crates.io
+- http://crates.io is like https://pursuit.haskell.org/ and https://hoogle.haskell.org/
+
+### -
+- You list the Crates you want to use in the `Cargo.toml` file
+- Your app keeps track of what crates you are using in the `Cargo.lock` file
+
+## Variables and Constants
+
+To get started using Rust you'll probably want to assign values so that
+you can use them. To do this in Rust:
+
+```
+let name = "ashley";
+let age = 30;
+```
+
+If you want to make a constant, you must specify a type:
+
+```
+const FAVENUM: u32 = 6;
+```
+
+## Types
+
+There are a lot of types, but just to get you started:
+
+- `u32`: unsigned 32-bit integer
+- `i32`: signed 32-bit integer
+- `String` and/or `&str`: more on these below
+- `bool`: a boolean
+
+## Variables Intro, Specify Type
+
+```rust
+fn main() {
+	let a: f64 = 32;
+	println!("a = {}", a);
+}
+```
+### Compiler Error
+
+```text
+error[E0308]: mismatched types
+ --> src/main.rs:2:15
+  |
+2 |     let a: f64 = 32;
+  |            ---   ^^
+  |            |     |
+  |            |     expected `f64`, found integer
+  |            |     help: use a float literal: `32.0`
+  |            expected due to this
+
+For more information about this error, try `rustc --explain E0308`.
+```
+### Correct Implementation
+
+```rust
+fn main() {
+    let a: f64 = 32.0;
+    println!("a = {}", a);
+}
+```
+
+## Mutating Variables
+
+```rust
+fn main() {
+    let a = 32;
+    println!("a = {}", a);
+    println!("Setting a to 33");
+    a = 33;
+    println!("a = {}", a);
+}
+```
+
+This won't compile in Rust.
+
+### Rust Shout at you
+
+```text
+error[E0384]: cannot assign twice to immutable variable `a`
+ --> src/main.rs:5:5
+  |
+2 |     let a = 32;
+  |         -
+  |         |
+  |         first assignment to `a`
+  |         help: consider making this binding mutable: `mut a`
+...
+5 |     a = 33;
+  |     ^^^^^^ cannot assign twice to immutable variable
+
+For more information about this error, try `rustc --explain E0384`.
+```
+### Mutating Variables
+
+```rust
+fn main() {
+    let mut a = 32;
+    println!("a = {}", a);
+    println!("Setting a to 33");
+    a = 33;
+    println!("a = {}", a);
+}
+```
+
+Output:
+
+```nohighlight
+a = 32
+Setting a to 33
+a = 33
+```
+
+## Blocks
+
+```rust
+fn main() {
+    let mut a = 32;
+    println!("a = {}", a);
+    println!("Setting a to a + a^2");
+    a = {
+        let a_squared = a * a;
+        a + a_squared
+    };
+    println!("a = {}", a);
+}
+```
+
+```nohighlight
+a = 32
+Setting a to a + a^2
+a = 1056
+```
+
+
+## Dealing with strings
+
+Strings in Rust are a lot more complicated than you might be used to if
+you are coming from another language, in particular, interpreted languages
+like Ruby or JavaScript. Here's some key points:
+
+### `&str` and `String`
+
+- "my string" is not a `String`. it's a `str`. the difference between a `String` and a
+  `str` is how they are allocated.
+- pretty much always use `str` with an `&`, as `&str`.
+- You can turn a `&str` into a `String` by using `to_string()` or `String::from()`. You want
+  to do this because `String` has a ton of awesome convenience methods.
+
+## Concatenation
+
+- add a `&str` to a `String` using `push_str()`
+
+```rust
+let mut realstring = String::from("hello ");
+let str1 = "world!";
+realstring.push_str(str1);
+```
+
+- add `&str` using `format!`
+
+```rust
+let str1 = "hello ";
+let str2 = "world!";
+let message = format!("{}{}", str1, str2);
+```
+
+
+## Macros
+
+Macros are an interesting part of Rust. You know something is a macro if its name has
+a `!`.
+
+### Print Macro
+
+- `println!` is the equivalent of `console.log` or `puts`. It prints printable things
+  to standard output, which is usually just the console.
+
+```rust
+println!("i get printed on the screen");
+println!("hello {}!", "world");
+```
+
+### Format Macro
+
+- `format!` is also a macro. We talked about it before as a way to 
+  concatenate `str`.
+
+```rust
+format!("my dogs are named: {} and {}", "cheeto", "frito");
+```
+
+
+## Function signatures
+
+### Rust Version
+
+```rust
+pub fn say_hello(name: &str) -> String {
+  let message = format!("hello, {}!", name);
+  message
+}
+```
+
+### Purescript Version
+```haskell
+say_hello :: String -> String
+say_hello name =
+    let message = "Hello, " <> name <> "!"
+    in message
+```
+
+### Rust Version With Generics
+
+```rust
+pub fn say_hello<T: Display>(name: T) -> String {
+  let message = format!("hello, {}!", name);
+  message
+}
+```
+
+### Purescript Version With Generics
+
+```haskell
+say_hello :: forall t. Show t => T -> String
+say_hello name =
+    let message = "Hello, " <> show name <> "!"
+    in message
+```
+
+### Visibility 
+
+- use `pub` at the beginning if you want the function to be accessible outside the file
+  as in a module or crate
+- the keyword `fn` is how we know it is a function
+- list parameters inside the parens in the style `parameter_name: Type`, separate by commas
+
+### ...
+
+- use the `->` to say what type the function returns
+- return a value from the last line of a function by omitting the semicolon
+- return early in a function using the `return` keyword
+
+## Creating Typed Record
+
+### Rust Version
+
+```rust
+#[derive(Debug)]
+struct Rec {
+    foo: String,
+    bar: String
+}
+
+fn main() {
+    let obj = Rec {foo: String::from("foo"), bar: String::from("bar")};
+    println!("Record = {obj:?}");
+}
+```
+
+### Purescript Version
+
+```haskell
+newtype Rec {
+    foo: String,
+    bar: String,
+}
+
+derive instance genericAction :: Generic Action _
+instance show :: Show Action where show = genericShow
+
+main :: Effect Unit
+    let obj = Rec {foo: "foo", bar: "bar"}
+    log("Record =" <> show obj)
+```
+
+## `match/case` syntax
+
+Rust has pattern matching also
+
+### Rust Version
+
+```rust
+match animal {
+  "cat" => "Meow",
+  "dog" => "Woof",
+  _ => "<indecipherable>", // trailing comma!
+}
+```
+
+### Purescript Version
+
+```haskell
+case animal of
+  "cat" -> "Meow",
+  "dog" -> "Woof",
+  _ -> "<indecipherable>", // trailing comma!
+```
+
+- `_` is used as a catch-all for anything that doesn't match
+- `match` supports trailing commas, and it's best practice to use them :)
+
+
+## The `Option/Maybe` type
+
+`Rust/Purescript/Haskell` doesn't have `nil`/`null` so if you want to express that something might return
+something or nothing, you need to use the `Option/Maybe` type.
+
+For example, if a parameter is optional you'd write:
+
+### Rust Version
+```rust
+fn greeting(name: Option<&str>) -> String {
+  let who = match name {
+    Some(n) => n,
+    None => "World",
+  };
+  format!("Hello, {}!", who)
+}
+
+greeting(Some("ashley"));
+// "Hello, ashley!"
+greeting(None);
+// "Hello, World!"
+```
+
+### Purescript Version
+```haskell
+greeting:: Maybe String -> Effect String
+greeting name =
+  let who = case name of
+    Just(n) => n
+    Nothing => "World"
+
+  log("Hello," <> who <> "!")
+
+greeting $ Just("ashley")
+# "Hello, ashley!"
+greeting Nothing;
+# "Hello, World!"
+```
+
+## The `Result/Either` type
+
+`Result/Either` is kind of like `Option` except instead of something or nothing, you
+expect something that is Ok (`Ok()`) or an error (`Err()`).
+
+### Rust Version
+
+```rust
+fn parse_name(name: Option<&str>) -> Result<&str, &'static str> {
+  match name {
+    Some(n) => Ok(n),
+    None => Err("You must provide a name."),
+  }
+}
+```
+
+### Purescript Version
+
+```haskell
+parse_name :: Maybe String -> Either String String
+parse_name name =
+  case name of
+    Just(n) => Right(n)
+    Nothing => Left("You must provide a name.")
+```
+
+## References
+
+- Reference *types* are written with an `&`: `&i32`.
+- References can be taken with `&` (like C/C++).
+
+### DeReferencing
+- References can be _dereferenced_ with `*` (like C/C++).
+- References are guaranteed to be valid.
+* Validity is enforced through compile-time checks!
+
+### Lifetimes
+- These are *not* the same as pointers!
+- Reference lifetimes are pretty complex.
+
+```rust
+let x = 12;
+let ref_x = &x;
+println!("{}", *ref_x); // 12
+```
+
+## TypeClasses And Traits: Defining Shared Behavior
+
+### TypeClasses
+
+```haskell
+class Eq a where
+  eq :: a -> a -> Boolean
+
+instance eqEither :: Eq t => Eq e => Eq (Either t e)
+    eq self other = case (self, other) of
+        (Right(t1), Right(t2)) -> eq(t1, t2)
+        (left(e1), left(e2)) -> eq(e1, e2)
+        _ => false
+```
+
+### Traits
+
+```rust
+trait Eq {
+    fn eq(&self, other: &Self) -> bool;
+}
+
+impl<T: Eq, E: Eq> Eq for Result<T, E> {
+    fn equals(&self, other: &Self) -> bool {
+        match (self, other) {
+            (Ok(t1), Ok(t2)) => t1.eq(t2),
+            (Err(e1), Err(e2)) => e1.eq(e2),
+            _ => false
+        }
+    }
+}
+```
+- `Self` is a special type which refers to the type of `self`.
